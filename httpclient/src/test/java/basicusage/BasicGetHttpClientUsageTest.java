@@ -12,10 +12,10 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class BasicHttpClientUsageTest {
+public class BasicGetHttpClientUsageTest {
 
     @Test
-    void basicUsageExample() throws URISyntaxException, IOException, InterruptedException {
+    void canGetReflectEndPoint() throws URISyntaxException, IOException, InterruptedException {
 
         final HttpClient client = HttpClient.newBuilder().proxy(ProxySelector.getDefault()).build();
 

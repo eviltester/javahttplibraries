@@ -29,6 +29,7 @@ public class MyHttpMain {
 
         before((request, response) ->{
             System.out.println(request.url());
+            response.header("X-VERB", request.requestMethod());
         });
 
         get("/reflect", (request, response) ->{
