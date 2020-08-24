@@ -10,24 +10,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 
-public class BasicGetHttpClientUsageTest {
+public class BasicGetHttpURLConnectionUsageTest {
 
     @Test
     void canGetReflectEndPoint() throws URISyntaxException, IOException, InterruptedException {
 
         final URL url = new URL(Environment.getBaseUri() + "/reflect");
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
         con.setRequestMethod("GET");
-
         int statusCode = con.getResponseCode();
 
         String body = getResponseBody(con);
-
         System.out.println(body);
 
         Assertions.assertTrue(body.contains("METHOD: GET"));
-
     }
 
     private String getResponseBody(HttpURLConnection con) {
