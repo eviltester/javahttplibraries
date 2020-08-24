@@ -19,7 +19,9 @@
 
     <modules>
         <module>myhttpapp</module>
+        <module>httpurlconnection</module>
         <module>httpclient</module>
+
     </modules>
 
 
