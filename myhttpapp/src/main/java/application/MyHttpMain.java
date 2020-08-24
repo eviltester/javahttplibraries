@@ -1,6 +1,7 @@
 package application;
 
 import spark.Request;
+import spark.Response;
 import spark.Spark;
 
 import static spark.Spark.*;
@@ -67,23 +68,93 @@ public class MyHttpMain {
         connect("/reflect", (request, response) ->{
             return (outputRequest(request));
         });
+
+        get("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        head("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        options("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        post("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        put("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        patch("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        delete("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        trace("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+
+        connect("/reflect/override", (request, response) ->{
+            return (outputRequestOverride(request, response));
+        });
+    }
+
+    private static String outputRequestOverride(final Request request, final Response response) {
+
+        //X-HTTP-Method
+        //X-HTTP-Method-Override
+        //X-Method-Override
+
+        String[] overrideHeaders = {"X-HTTP-Method",
+                                    "X-HTTP-Method-Override",
+                                    "X-Method-Override"};
+        String overrideVerb = "";
+
+        for(String overrideHeaderName : overrideHeaders){
+            if(request.headers(overrideHeaderName)!=null && request.headers(overrideHeaderName).trim().length()>0 ){
+                overrideVerb = request.headers(overrideHeaderName);
+                break;
+            }
+        }
+
+        if(!overrideVerb.equals("")){
+            response.raw().setHeader("X-VERB", overrideVerb);
+        }
+
+        return outputRequest(request, overrideVerb);
     }
 
     private static String outputRequest(final Request request) {
-            StringBuilder output = new StringBuilder();
+        return outputRequest(request, "");
+    }
 
-            output.append(String.format("URL: %s%n", request.url()));
+    private static String outputRequest(final Request request, String overrideVerb) {
+        StringBuilder output = new StringBuilder();
+
+        output.append(String.format("URL: %s%n", request.url()));
+        if(overrideVerb.equals("")) {
             output.append(String.format("METHOD: %s%n", request.requestMethod()));
-            if(!request.headers().isEmpty()){
-                output.append(String.format("Headers:%n"));
-                for(String header: request.headers()){
-                    output.append(String.format("%s: %s%n", header, request.headers(header)));
-                }
+        }else{
+            output.append(String.format("METHOD: %s%n", overrideVerb));
+        }
+
+        if(!request.headers().isEmpty()){
+            output.append(String.format("Headers:%n"));
+            for(String header: request.headers()){
+                output.append(String.format("%s: %s%n", header, request.headers(header)));
             }
-            if(request.body()!=null && request.body().trim().length()>0){
-                output.append(String.format("Body:%n"));
-                output.append(String.format("%s%n", request.body()));
-            }
+        }
+        if(request.body()!=null && request.body().trim().length()>0){
+            output.append(String.format("Body:%n"));
+            output.append(String.format("%s%n", request.body()));
+        }
         return output.toString();
     }
 }

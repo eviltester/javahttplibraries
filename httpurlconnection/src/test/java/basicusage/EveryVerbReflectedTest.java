@@ -14,6 +14,15 @@ import java.util.stream.Stream;
 
 public class EveryVerbReflectedTest {
 
+    /*
+       Common gotcha's with HttpUrlConnection:
+
+       - verbs must be uppercase i.e `con.setRequestMethod("POST");`
+       - `PATCH` and `CONN
+       ECT` are not supported, try the `X-HTTP-Method-Override` if the server supports it
+       - body is an Inputstream so needs to be read once into a string and then can be 're-used'
+
+     */
     static Stream verbList(){
         List<Arguments> args = new ArrayList<>();
 
@@ -65,12 +74,46 @@ public class EveryVerbReflectedTest {
         );
     }
 
-    // have to use the
-    // e.g.
-    // - headers.put("X-HTTP-Method-Override", "CONNECT")
-    // - headers.put("X-HTTP-Method-Override", "PATCH");
-    //
-    // and then POST
-    //
-    // con.setRequestMethod("POST");
+    /*
+     have to use the override headers
+
+     https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/06-Test_HTTP_Methods
+
+     e.g.
+
+     - `headers.put("X-HTTP-Method-Override", "CONNECT")`
+     - `headers.put("X-HTTP-Method-Override", "PATCH");`
+
+     and then POST to send these methods, but not all servers are configured to support this approach
+     and there is a potential that this approach is a security risk
+
+     - `con.setRequestMethod("POST");`
+
+     Override headers can be:
+
+     - X-HTTP-Method
+     - X-HTTP-Method-Override
+     - X-Method-Override
+
+     Although the actual header used is dependent on the server.
+
+    */
+
+
+    @ParameterizedTest(name = "unsupported verbs should use override header throw error {0}")
+    @MethodSource("unsupportedVerbList")
+    void verbOverrideUnsupported(String verb) throws IOException {
+
+        final URL url = new URL(Environment.getBaseUri() + "/reflect/override");
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+        con.setRequestProperty("X-HTTP-Method-Override", verb);
+
+        con.setRequestMethod("POST");
+
+        Assertions.assertEquals(200, con.getResponseCode());
+
+        Assertions.assertEquals(verb, con.getHeaderField("X-VERB"));
+    }
+
 }
