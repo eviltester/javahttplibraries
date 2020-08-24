@@ -20,7 +20,7 @@ public class BasicGetHttpClientUsageTest {
         final HttpClient client = HttpClient.newBuilder().proxy(ProxySelector.getDefault()).build();
 
         final URI uri = new URI(Environment.getBaseUri() + "/reflect");
-        // todo: create a 'good' reflect api that returns a json or xml object representing the request
+
         final HttpRequest.Builder request = HttpRequest.newBuilder().
                 uri(uri);
 
