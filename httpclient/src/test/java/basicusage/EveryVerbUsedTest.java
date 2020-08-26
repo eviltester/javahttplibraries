@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class EveryVerbReflectedTest {
+public class EveryVerbUsedTest {
 
     static Stream verbList(){
         List<Arguments> args = new ArrayList<>();

@@ -6,6 +6,8 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
+import java.util.Enumeration;
+
 import static spark.Spark.*;
 
 public class MyHttpMain {
@@ -153,8 +155,13 @@ public class MyHttpMain {
         req.setUrl(request.url());
         req.setVerb(request.requestMethod());
 
+
         for(String header: request.headers()){
-            req.addHeader(header, request.headers(header));
+            final Enumeration<String> actualHeaders =
+                    request.raw().getHeaders(header);
+            while(actualHeaders.hasMoreElements()){
+                req.addHeader(header, actualHeaders.nextElement());
+            }
         }
 
         req.setBody(request.body());
