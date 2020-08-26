@@ -1,5 +1,7 @@
 package application;
 
+import application.http.InternalRequest;
+import application.http.InternalRequestFormat;
 import spark.Request;
 import spark.Response;
 import spark.Spark;
@@ -118,7 +120,8 @@ public class MyHttpMain {
         String overrideVerb = "";
 
         for(String overrideHeaderName : overrideHeaders){
-            if(request.headers(overrideHeaderName)!=null && request.headers(overrideHeaderName).trim().length()>0 ){
+            if(request.headers(overrideHeaderName)!=null &&
+                    request.headers(overrideHeaderName).trim().length()>0 ){
                 overrideVerb = request.headers(overrideHeaderName);
                 break;
             }
@@ -128,33 +131,34 @@ public class MyHttpMain {
             response.raw().setHeader("X-VERB", overrideVerb);
         }
 
-        return outputRequest(request, overrideVerb);
+        return outputRequest(requestToInternalRequest(request), overrideVerb);
     }
 
     private static String outputRequest(final Request request) {
-        return outputRequest(request, "");
+        return outputRequest(requestToInternalRequest(request), "");
     }
 
-    private static String outputRequest(final Request request, String overrideVerb) {
-        StringBuilder output = new StringBuilder();
+    private static String outputRequest(final InternalRequest request, String overrideVerb) {
 
-        output.append(String.format("URL: %s%n", request.url()));
-        if(overrideVerb.equals("")) {
-            output.append(String.format("METHOD: %s%n", request.requestMethod()));
-        }else{
-            output.append(String.format("METHOD: %s%n", overrideVerb));
+        if(!overrideVerb.equals("")) {
+            request.setVerb(overrideVerb);
         }
 
-        if(!request.headers().isEmpty()){
-            output.append(String.format("Headers:%n"));
-            for(String header: request.headers()){
-                output.append(String.format("%s: %s%n", header, request.headers(header)));
-            }
+        return new InternalRequestFormat(request).asText();
+    }
+
+    static InternalRequest requestToInternalRequest(Request request){
+
+        InternalRequest req = new InternalRequest();
+        req.setUrl(request.url());
+        req.setVerb(request.requestMethod());
+
+        for(String header: request.headers()){
+            req.addHeader(header, request.headers(header));
         }
-        if(request.body()!=null && request.body().trim().length()>0){
-            output.append(String.format("Body:%n"));
-            output.append(String.format("%s%n", request.body()));
-        }
-        return output.toString();
+
+        req.setBody(request.body());
+
+        return req;
     }
 }
